@@ -75,7 +75,7 @@ def initialize_RAFT(args):
     """Initializes the RAFT model.
     """
     model = torch.nn.DataParallel(RAFT(args))
-    model.load_state_dict(torch.load(args.model))
+    model.load_state_dict(torch.load(args.model, map_location=args.map_location))
 
     model = model.module
     model.to('cuda')
@@ -318,7 +318,7 @@ def video_completion(args):
     if args.edge_guide:
         # Edge completion model.
         EdgeGenerator = EdgeGenerator_()
-        EdgeComp_ckpt = torch.load(args.edge_completion_model)
+        EdgeComp_ckpt = torch.load(args.edge_completion_model, map_location=args.map_location)
         EdgeGenerator.load_state_dict(EdgeComp_ckpt['generator'])
         EdgeGenerator.to(torch.device('cuda:0'))
         EdgeGenerator.eval()
@@ -448,7 +448,7 @@ def video_completion_seamless(args):
     if args.edge_guide:
         # Edge completion model.
         EdgeGenerator = EdgeGenerator_()
-        EdgeComp_ckpt = torch.load(args.edge_completion_model)
+        EdgeComp_ckpt = torch.load(args.edge_completion_model, map_location=args.map_location)
         EdgeGenerator.load_state_dict(EdgeComp_ckpt['generator'])
         EdgeGenerator.to(torch.device('cuda:0'))
         EdgeGenerator.eval()
@@ -607,6 +607,8 @@ if __name__ == '__main__':
     # extrapolation
     parser.add_argument('--H_scale', dest='H_scale', default=2, type=float, help='H extrapolation scale')
     parser.add_argument('--W_scale', dest='W_scale', default=2, type=float, help='W extrapolation scale')
+
+    parser.add_argument('--map_location', default='gpu', help="whether to run on CPU or GPU")
 
     args = parser.parse_args()
 
